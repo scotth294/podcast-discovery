@@ -6,35 +6,24 @@ require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// ✅ Allow requests from your Vercel frontend
-const corsOptions = {
-  origin: 'https://podcast-discovery-nine.vercel.app',
-  optionsSuccessStatus: 200
-};
-app.use(cors(corsOptions));
+app.use(cors({ origin: 'https://your-frontend.vercel.app' }));
 
-// ✅ Your /token route to get Spotify token
 app.get('/token', async (req, res) => {
-  const clientId = process.env.SPOTIFY_CLIENT_ID;
-  const clientSecret = process.env.SPOTIFY_CLIENT_SECRET;
-
-  const authOptions = {
-    method: 'post',
-    url: 'https://accounts.spotify.com/api/token',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-      Authorization: 'Basic ' + Buffer.from(`${clientId}:${clientSecret}`).toString('base64')
-    },
-    data: new URLSearchParams({
-      grant_type: 'client_credentials'
-    }).toString()
-  };
-
   try {
-    const response = await axios(authOptions);
+    const { SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET } = process.env;
+    const response = await axios.post(
+      'https://accounts.spotify.com/api/token',
+      new URLSearchParams({ grant_type: 'client_credentials' }),
+      {
+        headers: {
+          Authorization: 'Basic ' + Buffer.from(`${SPOTIFY_CLIENT_ID}:${SPOTIFY_CLIENT_SECRET}`).toString('base64'),
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+      }
+    );
     res.json({ access_token: response.data.access_token });
-  } catch (error) {
-    console.error('❌ Error fetching Spotify token:', error.message);
+  } catch (err) {
+    console.error('Error:', err.message);
     res.status(500).json({ error: 'Failed to fetch token' });
   }
 });
