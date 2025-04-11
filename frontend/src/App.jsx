@@ -4,26 +4,32 @@ import PodcastList from './components/PodcastList';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 
-export default function App() {
+function App() {
   const [token, setToken] = useState('');
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    axios.get(`${BACKEND_URL}/token`)
-      .then(res => {
+    const getToken = async () => {
+      try {
+        const res = await axios.get(`${BACKEND_URL}/token`);
         setToken(res.data.access_token);
-        setLoading(false);
-      })
-      .catch(err => {
-        console.error('Failed to fetch token:', err);
-        setLoading(false);
-      });
+      } catch (err) {
+        console.error('Error fetching token:', err);
+      }
+    };
+
+    getToken();
   }, []);
 
   return (
     <div className="min-h-screen bg-gray-100 p-4">
-      <h1 className="text-3xl font-bold mb-4">🎧 Podcast Discovery</h1>
-      {loading ? <p>Loading...</p> : <PodcastList token={token} />}
+      <h1 className="text-2xl font-bold mb-4">🎧 Podcast Discovery</h1>
+      {!token ? (
+        <p>Loading token...</p>
+      ) : (
+        <PodcastList token={token} />
+      )}
     </div>
   );
 }
+
+export default App;
