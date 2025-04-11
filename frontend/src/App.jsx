@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 
-const BACKEND_URL = 'http://localhost:5000'; // Replace with your deployed backend if needed
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL; // Replace with your deployed backend if needed
 
 export default function App() {
   const [token, setToken] = useState('');
