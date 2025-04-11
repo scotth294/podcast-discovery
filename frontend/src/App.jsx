@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-
+fetch("https://podcast-discovery.onrender.com/token")
 export default function App() {
   const [token, setToken] = useState('');
   const [loading, setLoading] = useState(true);
