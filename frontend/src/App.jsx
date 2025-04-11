@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import PodcastList from './components/PodcastList';
 
+// Pull backend URL from .env file
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 
 function App() {
@@ -10,10 +11,14 @@ function App() {
   useEffect(() => {
     const getToken = async () => {
       try {
+        console.log('🌐 Fetching token from:', `${BACKEND_URL}/token`); // Debug log
+
         const res = await axios.get(`${BACKEND_URL}/token`);
+        console.log('✅ Token received:', res.data.access_token); // Debug log
+
         setToken(res.data.access_token);
-      } catch (err) {
-        console.error('Error fetching token:', err);
+      } catch (error) {
+        console.error('❌ Error fetching token:', error.message);
       }
     };
 
