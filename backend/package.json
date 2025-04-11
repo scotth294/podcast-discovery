@@ -1,14 +1,10 @@
 {
   "name": "podcast-discovery-backend",
   "version": "1.0.0",
-  "description": "Backend for Podcast Discovery App",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
   },
-  "keywords": [],
-  "author": "scotth294",
-  "license": "MIT",
   "dependencies": {
     "axios": "^1.6.7",
     "cors": "^2.8.5",
