@@ -1,40 +1,26 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import PodcastList from './components/PodcastList';
+import { useEffect, useState } from 'react';
 
-// Pull backend URL from .env file
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
-
-function App() {
+export default function App() {
   const [token, setToken] = useState('');
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const getToken = async () => {
-      try {
-        console.log('🌐 Fetching token from:', `${BACKEND_URL}/token`); // Debug log
-
-        const res = await axios.get(`${BACKEND_URL}/token`);
-        console.log('✅ Token received:', res.data.access_token); // Debug log
-
-        setToken(res.data.access_token);
-      } catch (error) {
-        console.error('❌ Error fetching token:', error.message);
-      }
-    };
-
-    getToken();
+    fetch('https://your-backend.onrender.com/token')
+      .then(res => res.json())
+      .then(data => {
+        setToken(data.access_token);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error('Token error:', err);
+        setLoading(false);
+      });
   }, []);
 
   return (
-    <div className="min-h-screen bg-gray-100 p-4">
-      <h1 className="text-2xl font-bold mb-4">🎧 Podcast Discovery</h1>
-      {!token ? (
-        <p>Loading token...</p>
-      ) : (
-        <PodcastList token={token} />
-      )}
+    <div className="app">
+      <h1>🎧 Podcast Discovery</h1>
+      {loading ? <p>Loading...</p> : <p>Token Loaded</p>}
     </div>
   );
 }
-
-export default App;
