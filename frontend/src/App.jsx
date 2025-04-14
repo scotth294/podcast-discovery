@@ -1,5 +1,4 @@
-import { useState } from 'react';
-const [results, setResults] = useState([]);
+import React, { useState } from 'react';
 import './index.css';
 
 function App() {
@@ -7,18 +6,17 @@ function App() {
   const [results, setResults] = useState([]);
 
   const handleSearch = async (e) => {
-  e.preventDefault();
-  if (!searchTerm.trim()) return;
+    e.preventDefault();
+    if (!searchTerm.trim()) return;
 
-  try {
-    const response = await fetch(`https://your-backend-url.com/search?term=${encodeURIComponent(searchTerm)}`);
-    const data = await response.json();
-    setResults(data); // 👈 Store search results
-  } catch (error) {
-    console.error('Error fetching search results:', error);
-  }
-};
-
+    try {
+      const response = await fetch(`https://podcast-discovery-nine.vercel.app/search?term=${encodeURIComponent(searchTerm)}`);
+      const data = await response.json();
+      setResults(data);
+    } catch (error) {
+      console.error('Error fetching search results:', error);
+    }
+  };
 
   return (
     <div className="App">
