@@ -21,33 +21,28 @@ function App() {
 
 
   return (
-    <div className="app-container">
+    <div className="App">
       <h1>Podcast Discovery</h1>
-      <div className="search-box">
+      <form onSubmit={handleSearch}>
         <input
           type="text"
           placeholder="Search for podcasts..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
-        <button onClick={handleSearch}>Search</button>
-      </div>
+        <button type="submit">Search</button>
+      </form>
 
       <div className="results">
         {results.length > 0 ? (
           results.map((podcast, index) => (
-            <div key={index} className="podcast-card">
+            <div key={index} className="result-card">
               <h3>{podcast.title}</h3>
               <p>{podcast.description}</p>
-              {podcast.link && (
-                <a href={podcast.link} target="_blank" rel="noopener noreferrer">
-                  Listen
-                </a>
-              )}
             </div>
           ))
         ) : (
-          <p>No results yet. Try searching!</p>
+          <p>No results yet.</p>
         )}
       </div>
     </div>
