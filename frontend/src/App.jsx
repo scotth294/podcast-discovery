@@ -10,7 +10,7 @@ function App() {
     console.log("Searching for:", query);
 
     try {
-      const res = await fetch(`/search?q=${encodeURIComponent(query)}`);
+      const res = await fetch(`https://podcast-discovery.onrender.com/search?q=${encodeURIComponent(query)}`);
       const data = await res.json();
       console.log("Results from backend:", data);
       setResults(data);
