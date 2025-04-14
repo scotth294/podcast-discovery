@@ -1,46 +1,40 @@
 const express = require('express');
 const cors = require('cors');
-const fetch = require('node-fetch');
-require('dotenv').config();
-
 const app = express();
-const PORT = process.env.PORT || 3001;
+const port = process.env.PORT || 3001;
 
 app.use(cors());
 app.use(express.json());
 
-// Health check
+// Example route
 app.get('/', (req, res) => {
-  res.send('Podcast Discovery Backend is running!');
+  res.send('Welcome to the Podcast Discovery API!');
 });
 
-// 🔍 New search route
+// 🔍 Search route
 app.get('/search', async (req, res) => {
-  const query = req.query.query;
-  const accessToken = process.env.SPOTIFY_ACCESS_TOKEN;
+  const term = req.query.term;
 
-  if (!query || !accessToken) {
-    return res.status(400).json({ error: 'Missing query or access token' });
+  if (!term) {
+    return res.status(400).json({ error: 'Search term is required' });
   }
 
   try {
-    const response = await fetch(
-      `https://api.spotify.com/v1/search?q=${encodeURIComponent(query)}&type=show&limit=10`,
+    // Mock search result
+    const mockResults = [
       {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
+        title: `Sample Podcast Matching "${term}"`,
+        description: 'This is just a mock result. Real results coming soon!'
       }
-    );
+    ];
 
-    const data = await response.json();
-    res.json({ results: data.shows.items });
+    res.json(mockResults);
   } catch (error) {
-    console.error('Error fetching from Spotify API:', error);
-    res.status(500).json({ error: 'Failed to fetch from Spotify API' });
+    console.error('Search error:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
   }
 });
 
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+app.listen(port, () => {
+  console.log(`Server listening at http://localhost:${port}`);
 });
