@@ -31,3 +31,36 @@ app.get('/token', async (req, res) => {
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
 });
+
+// 🆕 Search route
+app.get('/search', async (req, res) => {
+  const query = req.query.query;
+  const accessToken = process.env.SPOTIFY_ACCESS_TOKEN;
+
+  if (!query || !accessToken) {
+    return res.status(400).json({ error: 'Missing query or access token' });
+  }
+
+  try {
+    const spotifyRes = await fetch(
+      `https://api.spotify.com/v1/search?q=${encodeURIComponent(query)}&type=show&limit=10`,
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    );
+
+    const data = await spotifyRes.json();
+    const results = data.shows?.items || [];
+
+    res.json({ results });
+  } catch (err) {
+    console.error('Spotify API error:', err);
+    res.status(500).json({ error: 'Failed to fetch from Spotify' });
+  }
+});
+
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});
