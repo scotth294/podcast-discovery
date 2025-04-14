@@ -7,45 +7,58 @@ function App() {
 
   const handleSearch = async (e) => {
     e.preventDefault();
-    console.log("Searching for:", query);
+
+    if (!query.trim()) return;
 
     try {
-      const res = await fetch(`https://podcast-discovery.onrender.com/search?q=${encodeURIComponent(query)}`);
-      const data = await res.json();
-      console.log("Results from backend:", data);
-      setResults(data);
-    } catch (err) {
-      console.error("Search error:", err);
+      const response = await fetch(
+        `https://podcast-discovery.onrender.com/search?q=${encodeURIComponent(query)}`
+      );
+      const data = await response.json();
+      setResults(data.results || []);
+      console.log("Search results:", data.results);
+    } catch (error) {
+      console.error("Error fetching search results:", error);
     }
   };
 
   return (
-    <div className="App" style={{ padding: "2rem", fontFamily: "sans-serif" }}>
+    <div className="app">
       <h1>Podcast Discovery</h1>
-
-      <form onSubmit={handleSearch} style={{ marginBottom: "1rem", display: "flex", gap: "0.5rem" }}>
+      <form onSubmit={handleSearch} className="search-form">
         <input
           type="text"
+          placeholder="Search podcasts..."
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search for podcasts..."
-          style={{ padding: "0.5rem", flex: 1 }}
         />
-        <button type="submit" style={{ padding: "0.5rem 1rem" }}>
-          Search
-        </button>
+        <button type="submit">Search</button>
       </form>
 
-      {results.length > 0 && (
-        <ul style={{ listStyle: "none", padding: 0 }}>
-          {results.map((podcast, idx) => (
-            <li key={idx} style={{ marginBottom: "1rem", borderBottom: "1px solid #ccc", paddingBottom: "1rem" }}>
-              <h3>{podcast.title}</h3>
-              <p>{podcast.description}</p>
-            </li>
-          ))}
-        </ul>
-      )}
+      <div className="results">
+        {results.length === 0 ? (
+          <p>No results yet. Try a search!</p>
+        ) : (
+          results.map((podcast) => (
+            <div key={podcast.id} className="podcast-card">
+              <img
+                src={podcast.image}
+                alt={podcast.name}
+                className="podcast-image"
+              />
+              <div className="podcast-info">
+                <h2>{podcast.name}</h2>
+                <p className="podcast-publisher">{podcast.publisher}</p>
+                <p className="podcast-description">
+                  {podcast.description?.length > 200
+                    ? podcast.description.slice(0, 200) + "..."
+                    : podcast.description}
+                </p>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
     </div>
   );
 }
