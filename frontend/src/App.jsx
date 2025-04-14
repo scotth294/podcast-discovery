@@ -1,4 +1,5 @@
 import { useState } from 'react';
+const [results, setResults] = useState([]);
 import './index.css';
 
 function App() {
