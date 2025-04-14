@@ -1,67 +1,64 @@
 const express = require('express');
 const cors = require('cors');
-const fetch = require('node-fetch');
+const axios = require('axios');
+require('dotenv').config();
 
 const app = express();
 const port = process.env.PORT || 3001;
 
 app.use(cors());
 
-// ✅ Read from Render environment variables
-const client_id = process.env.SPOTIFY_CLIENT_ID;
-const client_secret = process.env.SPOTIFY_CLIENT_SECRET;
+// Spotify credentials from environment variables
+const clientId = process.env.SPOTIFY_CLIENT_ID;
+const clientSecret = process.env.SPOTIFY_CLIENT_SECRET;
 
-let token = null;
-let tokenExpiresAt = null;
-
-async function getAccessToken() {
-  const response = await fetch('https://accounts.spotify.com/api/token', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-      'Authorization': 'Basic ' + Buffer.from(client_id + ':' + client_secret).toString('base64')
-    },
-    body: 'grant_type=client_credentials'
-  });
-
-  const data = await response.json();
-  token = data.access_token;
-  tokenExpiresAt = Date.now() + data.expires_in * 1000;
-}
-
-async function ensureToken(req, res, next) {
-  if (!token || Date.now() >= tokenExpiresAt) {
-    await getAccessToken();
-  }
-  next();
-}
-
-app.get('/search', ensureToken, async (req, res) => {
+// Route: Search Podcasts
+app.get('/search', async (req, res) => {
   const query = req.query.q;
-  if (!query) return res.status(400).json({ error: 'Missing query' });
+
+  if (!query) {
+    return res.status(400).json({ error: 'Missing search query' });
+  }
 
   try {
-    const searchUrl = `https://api.spotify.com/v1/search?q=${encodeURIComponent(query)}&type=show&limit=10`;
-
-    const response = await fetch(searchUrl, {
-      headers: {
-        'Authorization': `Bearer ${token}`
+    // Step 1: Get Spotify Access Token
+    const tokenResponse = await axios.post(
+      'https://accounts.spotify.com/api/token',
+      new URLSearchParams({ grant_type: 'client_credentials' }),
+      {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          Authorization:
+            'Basic ' + Buffer.from(`${clientId}:${clientSecret}`).toString('base64'),
+        },
       }
-    });
+    );
 
-    const data = await response.json();
+    const accessToken = tokenResponse.data.access_token;
 
-    if (data.shows && data.shows.items) {
-      res.json(data.shows.items);
-    } else {
-      res.status(500).json({ error: 'Invalid Spotify response' });
-    }
-  } catch (err) {
-    console.error('Search error:', err);
-    res.status(500).json({ error: 'Something went wrong during search' });
+    // Step 2: Search for Podcasts
+    const searchResponse = await axios.get(
+      `https://api.spotify.com/v1/search`,
+      {
+        headers: { Authorization: `Bearer ${accessToken}` },
+        params: {
+          q: query,
+          type: 'show', // 'show' is the type for podcasts
+          limit: 10,
+        },
+      }
+    );
+
+    const podcasts = searchResponse.data.shows.items;
+
+    res.json(podcasts);
+  } catch (error) {
+    console.error('Error during Spotify search:', error.response?.data || error.message);
+    res.status(500).json({ error: 'Failed to fetch from Spotify' });
   }
 });
 
+// Start server
 app.listen(port, () => {
-  console.log(`Server listening on port ${port}`);
+  console.log(`Server running on port ${port}`);
 });
