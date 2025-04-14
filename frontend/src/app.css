@@ -1,0 +1,44 @@
+.App {
+  font-family: sans-serif;
+  text-align: center;
+  padding: 2rem;
+}
+
+.search-bar {
+  margin-bottom: 2rem;
+}
+
+.search-bar input {
+  padding: 0.5rem;
+  width: 300px;
+  font-size: 16px;
+}
+
+.search-bar button {
+  padding: 0.5rem 1rem;
+  margin-left: 1rem;
+  font-size: 16px;
+}
+
+.results {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  align-items: center;
+}
+
+.podcast-card {
+  max-width: 600px;
+  border: 1px solid #ddd;
+  padding: 1rem;
+  border-radius: 8px;
+  text-align: left;
+  background: #f9f9f9;
+}
+
+.podcast-card img {
+  width: 100px;
+  float: left;
+  margin-right: 1rem;
+  border-radius: 4px;
+}
