@@ -6,16 +6,19 @@ function App() {
   const [searchTerm, setSearchTerm] = useState('');
   const [results, setResults] = useState([]);
 
-  const handleSearch = async () => {
-    if (!searchTerm) return;
-    try {
-      const response = await fetch(`https://podcast-discovery.onrender.com/search?term=${encodeURIComponent(searchTerm)}`);
-      const data = await response.json();
-      setResults(data);
-    } catch (error) {
-      console.error('Search error:', error);
-    }
-  };
+  const handleSearch = async (e) => {
+  e.preventDefault();
+  if (!searchTerm.trim()) return;
+
+  try {
+    const response = await fetch(`https://your-backend-url.com/search?term=${encodeURIComponent(searchTerm)}`);
+    const data = await response.json();
+    setResults(data); // 👈 Store search results
+  } catch (error) {
+    console.error('Error fetching search results:', error);
+  }
+};
+
 
   return (
     <div className="app-container">
