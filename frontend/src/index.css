@@ -94,3 +94,36 @@ h1 {
   text-decoration: none;
   font-weight: bold;
 }
+
+.podcast-card {
+  display: flex;
+  gap: 1rem;
+  border-bottom: 1px solid #ddd;
+  padding: 1rem 0;
+}
+
+.podcast-image {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.podcast-info {
+  flex: 1;
+}
+
+.podcast-info h2 {
+  margin: 0 0 0.25rem;
+  font-size: 1.2rem;
+}
+
+.podcast-publisher {
+  font-size: 0.9rem;
+  color: gray;
+  margin-bottom: 0.5rem;
+}
+
+.podcast-description {
+  font-size: 0.95rem;
+}
