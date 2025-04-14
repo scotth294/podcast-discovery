@@ -1,50 +1,67 @@
-const express = require("express");
-const cors = require("cors");
+const express = require('express');
+const cors = require('cors');
+const fetch = require('node-fetch');
+
 const app = express();
 const port = process.env.PORT || 3001;
 
-// Enable CORS so your frontend can talk to this backend
 app.use(cors());
 
-// Optional root route
-app.get("/", (req, res) => {
-  res.send("Podcast Discovery API is running.");
-});
+// ✅ Read from Render environment variables
+const client_id = process.env.SPOTIFY_CLIENT_ID;
+const client_secret = process.env.SPOTIFY_CLIENT_SECRET;
 
-// Search route
-app.get("/search", (req, res) => {
+let token = null;
+let tokenExpiresAt = null;
+
+async function getAccessToken() {
+  const response = await fetch('https://accounts.spotify.com/api/token', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'Authorization': 'Basic ' + Buffer.from(client_id + ':' + client_secret).toString('base64')
+    },
+    body: 'grant_type=client_credentials'
+  });
+
+  const data = await response.json();
+  token = data.access_token;
+  tokenExpiresAt = Date.now() + data.expires_in * 1000;
+}
+
+async function ensureToken(req, res, next) {
+  if (!token || Date.now() >= tokenExpiresAt) {
+    await getAccessToken();
+  }
+  next();
+}
+
+app.get('/search', ensureToken, async (req, res) => {
   const query = req.query.q;
-  console.log("Search query received:", query);
+  if (!query) return res.status(400).json({ error: 'Missing query' });
 
-  // Dummy results (replace with real data later)
-  const results = [
-    {
-      title: "The Tech Talk",
-      description: "Discussing the latest in technology trends.",
-      link: "https://example.com/tech-talk"
-    },
-    {
-      title: "Coding Corner",
-      description: "Deep dive into JavaScript and web development.",
-      link: "https://example.com/coding-corner"
-    },
-    {
-      title: "Debugging Diaries",
-      description: "Stories and tips from real-life debugging sessions.",
-      link: "https://example.com/debugging-diaries"
+  try {
+    const searchUrl = `https://api.spotify.com/v1/search?q=${encodeURIComponent(query)}&type=show&limit=10`;
+
+    const response = await fetch(searchUrl, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+
+    const data = await response.json();
+
+    if (data.shows && data.shows.items) {
+      res.json(data.shows.items);
+    } else {
+      res.status(500).json({ error: 'Invalid Spotify response' });
     }
-  ];
-
-  // Simulate simple filter by keyword match
-  const filtered = results.filter(podcast =>
-    podcast.title.toLowerCase().includes(query.toLowerCase()) ||
-    podcast.description.toLowerCase().includes(query.toLowerCase())
-  );
-
-  res.json(filtered);
+  } catch (err) {
+    console.error('Search error:', err);
+    res.status(500).json({ error: 'Something went wrong during search' });
+  }
 });
 
-// Start the server
 app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
+  console.log(`Server listening on port ${port}`);
 });
